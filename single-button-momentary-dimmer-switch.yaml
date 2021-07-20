@@ -5,8 +5,6 @@ blueprint:
   input:
     button:
       name: Button
-      description:
-        Momentary push button
       selector:
         entity:
           domain: sensor
@@ -26,23 +24,21 @@ blueprint:
     brightness:
       name: Brightness
       description: Brightness of the light(s) when turning on
-      default: 50
+      default: 128
       selector:
         number:
           min: 0
-          max: 100
+          max: 255
           mode: slider
           step: 1
-          unit_of_measurement: "%"
     brightness_step_pct:
       name: Brightness step
-      description: Percentage brightness increase/decrease in each transition step.
-      default: "20"
+      description: Step size of brightness increase/decrease in each transition step.
+      default: "30"
       selector:
         number:
           min: "1"
-          max: "100"
-          unit_of_measurement: "%"
+          max: "255"
     transition_step_length:
       name: Transition step length
       description: Length of each transition step.
@@ -54,12 +50,17 @@ blueprint:
           step: "0.01"
           unit_of_measurement: s
 
-mode: single
+mode: restart
 
 trigger:
   - platform: state
     entity_id: !input button
-
+    to: "single"
+  - platform: state
+    entity_id: !input button
+    from: ""
+    to: "hold"
+    
 action:
   - variables:
       command: "{{ trigger.to_state.state }}"
@@ -76,7 +77,7 @@ action:
                   - service: light.toggle
                     data:
                       transition: 1
-                      brightness_pct: !input brightness
+                      brightness: !input brightness
                     entity_id: !input light
             default:
               - service: light.toggle
