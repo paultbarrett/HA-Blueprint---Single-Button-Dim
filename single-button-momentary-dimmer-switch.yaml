@@ -62,6 +62,10 @@ trigger:
     to: "hold"
   - platform: state
     entity_id: !input button
+    from: "single"
+    to: "hold"
+  - platform: state
+    entity_id: !input button
     from: "hold_release"
     to: "hold"
 
@@ -109,6 +113,7 @@ action:
                             transition: !input transition_step_length
                             brightness_step: "{{ brightness_step_positive }}"
                           entity_id: !input light
+                        - delay: !input transition_step_length
             default:
               # dim down
               - repeat:
@@ -122,3 +127,4 @@ action:
                         transition: !input transition_step_length
                         brightness_step: "{{ brightness_step_negative }}"
                       entity_id: !input light
+                    - delay: !input transition_step_length
