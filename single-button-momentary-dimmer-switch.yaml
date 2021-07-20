@@ -59,7 +59,7 @@ mode: single
 trigger:
   - platform: state
     entity_id: !input button
-	
+    
 variables:
   brightness_step_pct_positive: !input brightness_step_pct
   brightness_step_pct_negative: "{{ brightness_step_pct_positive|int * -1 }}"
