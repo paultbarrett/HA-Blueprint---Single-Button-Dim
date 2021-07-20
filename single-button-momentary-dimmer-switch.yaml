@@ -1,0 +1,122 @@
+blueprint:
+  name: Single button dimmer switch
+  description: Swith a light on/off, dim up/down by holding.
+  domain: automation
+  input:
+    button:
+      name: Button
+      description:
+        Momentary push button
+      selector:
+        entity:
+          domain: sensor
+    light:
+      name: Light
+      selector:
+        entity:
+          domain: light
+    force_brightness:
+      name: Force turn on brightness
+      description: >
+        Force the brightness to the set level below, when the "on" button on
+        the remote is pushed and lights turn on.
+      default: false
+      selector:
+        boolean:
+    brightness:
+      name: Brightness
+      description: Brightness of the light(s) when turning on
+      default: 50
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+          step: 1
+          unit_of_measurement: "%"
+    brightness_step_pct:
+      name: Brightness step
+      description: Percentage brightness increase/decrease in each transition step.
+      default: "20"
+      selector:
+        number:
+          min: "1"
+          max: "100"
+          unit_of_measurement: "%"
+    transition_step_length:
+      name: Transition step length
+      description: Length of each transition step.
+      default: "0.1"
+      selector:
+        number:
+          min: "0"
+          max: "5"
+          step: "0.01"
+          unit_of_measurement: s
+
+mode: single
+
+trigger:
+  - platform: state
+    entity_id: !input button
+
+variables:
+  brightness_step_pct_positive: !input brightness_step_pct
+  brightness_step_pct_negative: "{{ brightness_step_pct_positive|int * -1 }}"
+
+action:
+  - variables:
+      command: "{{ trigger.to_state.state }}"
+			command_prev: "{{ trigger.from_state.state }}"
+  - choose:
+      - conditions:
+          - "{{ command == 'single' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ force_brightness }}"
+                sequence:
+                  - service: light.toggle
+                    target: !input light
+                    data:
+                      transition: 1
+                      brightness_pct: !input brightness
+						default:
+              - service: light.toggle
+                target: !input light
+                data:
+                  transition: 1
+      - conditions: 
+					- "{{ command == 'hold_release' }}"			
+				sequence:
+					- choose:
+							-conditions: "{{ command_prev == 'hold_release' }}"
+								# dim down
+								- repeat:
+										while:
+											- condition: state
+												entity_id: !input button
+												state: "hold"
+										sequence:
+											- service: light.turn_on
+												data:
+													transition: !input transition_step_length
+													brightness_step_pct: "{{ brightness_step_pct_negative }}"
+												entity_id: !input light
+            default:
+              # otherwise, dim up
+              - repeat:
+                  while:
+                    - condition: state
+                      entity_id: !input button
+                      state: "on"
+                  sequence:
+                    - service: light.turn_on
+                      data:
+                        transition: !input transition_step_length
+                        brightness_step_pct: "{{ brightness_step_pct_positive }}"
+                      entity_id: !input light
+
+    # when trigger came (button has been released within timeout)
+    default:
+      - service: light.toggle
+        entity_id: !input light
