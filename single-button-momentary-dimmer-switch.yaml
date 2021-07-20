@@ -59,15 +59,13 @@ mode: single
 trigger:
   - platform: state
     entity_id: !input button
-    
-variables:
-  brightness_step_pct_positive: !input brightness_step_pct
-  brightness_step_pct_negative: "{{ brightness_step_pct_positive|int * -1 }}"
 
 action:
   - variables:
       command: "{{ trigger.to_state.state }}"
       command_prev: "{{ trigger.from_state.state }}"
+      brightness_step_pct_positive: !input brightness_step_pct
+      brightness_step_pct_negative: "{{ brightness_step_pct_positive|int * -1 }}"
   - choose:
       - conditions:
           - "{{ command == 'single' }}"
@@ -76,12 +74,12 @@ action:
               - conditions: "{{ force_brightness }}"
                 sequence:
                   - service: light.toggle
-                    target: !input light
                     data:
                       transition: 1
                       brightness_pct: !input brightness
+                    entity_id: !input light
             default:
               - service: light.toggle
-                target: !input light
                 data:
                   transition: 1
+                entity_id: !input light
