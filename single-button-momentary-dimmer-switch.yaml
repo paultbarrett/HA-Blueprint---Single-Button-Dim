@@ -85,34 +85,3 @@ action:
                 target: !input light
                 data:
                   transition: 1
-      - conditions: 
-          - "{{ command == 'hold' }}"
-        sequence:
-          - choose:
-              - conditions: "{{ command_prev == 'hold_release' }}"
-                sequence:
-                  # dim up
-                  - repeat:
-                      while:
-                        - condition: state
-                          entity_id: !input button
-                          state: "hold"
-                      sequence:
-                        - service: light.turn_on
-                          data:
-                            transition: !input transition_step_length
-                            brightness_step_pct: "{{ brightness_step_pct_positive }}"
-                          entity_id: !input light
-            default:
-              # dim down
-              - repeat:
-                  while:
-                    - condition: state
-                      entity_id: !input button
-                      state: "hold"
-                  sequence:
-                    - service: light.turn_on
-                      data:
-                        transition: !input transition_step_length
-                        brightness_step_pct: "{{ brightness_step_pct_negative }}"
-                      entity_id: !input light
