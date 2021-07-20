@@ -59,7 +59,7 @@ mode: single
 trigger:
   - platform: state
     entity_id: !input button
-
+	
 variables:
   brightness_step_pct_positive: !input brightness_step_pct
   brightness_step_pct_negative: "{{ brightness_step_pct_positive|int * -1 }}"
@@ -86,37 +86,33 @@ action:
                 data:
                   transition: 1
       - conditions: 
-					- "{{ command == 'hold_release' }}"			
+					- "{{ command == 'hold' }}"			
 				sequence:
 					- choose:
-							-conditions: "{{ command_prev == 'hold_release' }}"
-								# dim down
-								- repeat:
-										while:
-											- condition: state
-												entity_id: !input button
-												state: "hold"
-										sequence:
-											- service: light.turn_on
-												data:
-													transition: !input transition_step_length
-													brightness_step_pct: "{{ brightness_step_pct_negative }}"
-												entity_id: !input light
-            default:
-              # otherwise, dim up
-              - repeat:
-                  while:
-                    - condition: state
-                      entity_id: !input button
-                      state: "on"
-                  sequence:
-                    - service: light.turn_on
-                      data:
-                        transition: !input transition_step_length
-                        brightness_step_pct: "{{ brightness_step_pct_positive }}"
-                      entity_id: !input light
-
-    # when trigger came (button has been released within timeout)
-    default:
-      - service: light.toggle
-        entity_id: !input light
+							- conditions: "{{ command_prev == 'hold_release' }}"
+								sequence:
+									# dim up
+									- repeat:
+											while:
+												- condition: state
+													entity_id: !input button
+													state: "hold"
+											sequence:
+												- service: light.turn_on
+													data:
+														transition: !input transition_step_length
+														brightness_step_pct: "{{ brightness_step_pct_positive }}"
+													entity_id: !input light
+						default:
+							# dim down
+							- repeat:
+									while:
+										- condition: state
+											entity_id: !input button
+											state: "hold"
+									sequence:
+										- service: light.turn_on
+											data:
+												transition: !input transition_step_length
+												brightness_step_pct: "{{ brightness_step_pct_negative }}"
+											entity_id: !input light
