@@ -31,7 +31,7 @@ blueprint:
           max: 255
           mode: slider
           step: 1
-    brightness_step_pct:
+    brightness_step:
       name: Brightness step
       description: Step size of brightness increase/decrease in each transition step.
       default: "30"
@@ -42,7 +42,7 @@ blueprint:
     transition_step_length:
       name: Transition step length
       description: Length of each transition step.
-      default: "0.1"
+      default: "0.2"
       selector:
         number:
           min: "0"
@@ -64,13 +64,16 @@ trigger:
     entity_id: !input button
     from: "hold_release"
     to: "hold"
-    
+
+variables:
+  force_brightness: !input force_brightness
+  
 action:
   - variables:
       command: "{{ trigger.to_state.state }}"
       command_prev: "{{ trigger.from_state.state }}"
-      brightness_step_pct_positive: !input brightness_step_pct
-      brightness_step_pct_negative: "{{ brightness_step_pct_positive|int * -1 }}"
+      brightness_step_positive: !input brightness_step
+      brightness_step_negative: "{{ brightness_step_positive|int * -1 }}"
   - choose:
       - conditions:
           - "{{ command == 'single' }}"
@@ -104,7 +107,7 @@ action:
                         - service: light.turn_on
                           data:
                             transition: !input transition_step_length
-                            brightness_step_pct: "{{ brightness_step_pct_positive }}"
+                            brightness_step: "{{ brightness_step_positive }}"
                           entity_id: !input light
             default:
               # dim down
@@ -117,5 +120,5 @@ action:
                     - service: light.turn_on
                       data:
                         transition: !input transition_step_length
-                        brightness_step_pct: "{{ brightness_step_pct_negative }}"
+                        brightness_step: "{{ brightness_step_negative }}"
                       entity_id: !input light
