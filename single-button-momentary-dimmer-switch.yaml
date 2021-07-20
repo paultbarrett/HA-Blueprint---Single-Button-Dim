@@ -85,7 +85,7 @@ action:
                 data:
                   transition: 1
       - conditions: 
-          - "{{ command == 'hold' }}"			
+          - "{{ command == 'hold' }}"
         sequence:
           - choose:
               - conditions: "{{ command_prev == 'hold_release' }}"
