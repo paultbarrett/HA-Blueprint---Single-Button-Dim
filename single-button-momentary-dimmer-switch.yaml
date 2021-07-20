@@ -60,6 +60,10 @@ trigger:
     entity_id: !input button
     from: ""
     to: "hold"
+  - platform: state
+    entity_id: !input button
+    from: "hold_release"
+    to: "hold"
     
 action:
   - variables:
