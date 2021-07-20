@@ -1,0 +1,25 @@
+blueprint:
+  name: Single button switch
+  description: Swith a light on/off
+  domain: automation
+  input:
+    button:
+      name: Button
+      description:
+        Momentary push button
+      selector:
+        entity:
+          domain: sensor
+    light:
+      name: Light
+      selector:
+        entity:
+          domain: light
+
+trigger:
+  - platform: state
+    entity_id: !input button
+
+action:
+  - service: light.toggle
+    entity_id: !input light
