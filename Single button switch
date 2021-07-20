@@ -19,6 +19,7 @@ blueprint:
 trigger:
   - platform: state
     entity_id: !input button
+    to: "single"
 
 action:
   - service: light.toggle
