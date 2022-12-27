@@ -1,0 +1,68 @@
+blueprint:
+  name: Device Charge Control
+  description: Charges a device up to a percentage and then turns off the charger until the percentage drops below a defined level.
+  domain: automation
+  input:
+    device_battery:
+      name: Device Battery level
+      description: Sensor that will provide the device charge level
+      selector:
+        entity:
+          domain: sensor
+          device_class: battery
+    device_charger:
+      name: Device Charger
+      description: Switch that controls power to the device charger
+      selector:
+        target:
+          entity:
+            domain: switch
+    low_charge_threshold:
+      name: Low Charge Threshold
+      description: Low charge threshold below which the device charger will be switched on
+      selector:
+        number:
+          min: 5.0
+          max: 95.0
+          unit_of_measurement: percentage
+          mode: slider
+          step: 1.0
+    high_charge_threshold:
+      name: High Charge Threshold
+      description: High charge threshold above which the device charger will be switched off
+      selector:
+        number:
+          min: 50.0
+          max: 100.0
+          unit_of_measurement: percentage
+          mode: slider
+          step: 1.0
+  source_url: https://raw.githubusercontent.com/paultbarrett/Home-Assistant-Blueprints/main/device-charge-control
+mode: single
+max_exceeded: silent
+trigger:
+- platform: numeric_state
+  entity_id: !input 'device_battery'
+  below: !input 'low_charge_threshold'
+- platform: numeric_state
+  entity_id: !input 'device_battery'
+  above: !input 'high_charge_threshold'
+action:
+- choose:
+  - conditions:
+    - condition: numeric_state
+      entity_id: !input 'device_battery'
+      above: !input 'high_charge_threshold'
+    sequence:
+      - service: homeassistant.turn_off
+        target: !input 'device_charger'
+  default:
+    - service: homeassistant.turn_on
+      target: !input 'device_charger'
+    - wait_for_trigger:
+      - platform: numeric_state
+        entity_id: !input 'device_battery'
+        above: !input 'high_charge_threshold'
+      continue_on_timeout: false
+    - service: homeassistant.turn_off
+      target: !input 'device_charger'
