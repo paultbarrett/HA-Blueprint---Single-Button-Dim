@@ -1,6 +1,7 @@
 blueprint:
   name: Send a notification with camera snapshot when a person is detected.
   description: >
+    12-07-2023
     This automation blueprint creates a camera snapshot if a person is detected 
     and sends a notification to your phone with the picture. 
     Optionally you can define a binary sensor that will block the automation from running when state is ON.
