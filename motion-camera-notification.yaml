@@ -146,7 +146,7 @@ condition:
     - condition: numeric_state
       entity_id: !input motion_sensor
       attribute: confidence
-      above: "{{ detection_confidence }}"
+      above: !input detection_confidence
       
 action:
   - delay: "{{ delay }}"
