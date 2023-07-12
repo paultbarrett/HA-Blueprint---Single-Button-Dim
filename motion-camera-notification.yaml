@@ -120,6 +120,7 @@ variables:
   motion_sensor: !input motion_sensor
   motion_sensor_name: "{{ states[motion_sensor].name }}"
   detection_confidence: !input detection_confidence
+  detection_confidence_float: '{{ states(detection_confidence) | float }}'
   camera: !input camera
   notify_device: !input notify_device
   notification_title: !input notification_title
@@ -146,7 +147,7 @@ condition:
     - condition: numeric_state
       entity_id: !input motion_sensor
       attribute: confidence
-      above: '{{ states(detection_confidence) | float }}'
+      above: "{{ detection_confidence_float }}"
       
 action:
   - delay: "{{ delay }}"
