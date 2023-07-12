@@ -79,13 +79,13 @@ blueprint:
 
     notification_title:
       name: Notification title (Optional)
-      description: 'Default: "Motion detected!"'
-      default: "Motion detected!"
+      description: 'Default: "Person Detected"'
+      default: "Person Detected"
 
     notification_message:
       name: Notification message (Optional)
-      description: 'Default: "{{ motion_sensor_name }} detected movement!"'
-      default: "{{ motion_sensor_name }} detected movement!"
+      description: 'Default: "A person was detected by {{ motion_sensor_name }}"'
+      default: "A person was detected by {{ motion_sensor_name }}"
 
     clickAction:
       name: ClickAction URI (Optional)
