@@ -1,7 +1,6 @@
 blueprint:
   name: Send a notification with camera snapshot when a person is detected.
   description: >
-    12-07-2023
     This automation blueprint creates a camera snapshot if a person is detected 
     and sends a notification to your phone with the picture. 
     Optionally you can define a binary sensor that will block the automation from running when state is ON.
@@ -45,8 +44,6 @@ blueprint:
         number:
             min: 0
             max: 100
-            unit_of_measurement: "%"
-            mode: slider
 
     camera:
       name: Camera
@@ -120,8 +117,6 @@ trigger:
 variables:
   motion_sensor: !input motion_sensor
   motion_sensor_name: "{{ states[motion_sensor].name }}"
-  detection_confidence: !input detection_confidence
-  detection_confidence_float: '{{ states(detection_confidence) | float }}'
   camera: !input camera
   notify_device: !input notify_device
   notification_title: !input notification_title
@@ -148,7 +143,7 @@ condition:
     - condition: numeric_state
       entity_id: !input motion_sensor
       attribute: confidence
-      above: "{{ detection_confidence_float }}"
+      above: !input detection_confidence
       
 action:
   - delay: "{{ delay }}"
