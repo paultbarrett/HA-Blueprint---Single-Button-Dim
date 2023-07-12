@@ -1,5 +1,5 @@
 blueprint:
-  name: Send a notification with camera snapshot when a is detected with blocking state and URL (or lovelace view) on click, critical or not, collapse or not.
+  name: Send a notification with camera snapshot when a person is detected.
   description: >
     This automation blueprint creates a camera snapshot if a person is detected 
     and sends a notification to your phone with the picture. 
@@ -36,29 +36,33 @@ blueprint:
             domain: binary_sensor
             device_class: motion
 
+    detection_confidence:
+      name: Detection Confidence (Optional)
+      description: Confidence threshold that is needed for person detection
+      default: 75
+      selector:
+        number:
+            min: 0
+            max: 100
+            unit_of_measurement: percent
+            mode: slider
+
     camera:
       name: Camera
-      description: The camera to create the snapshot (domain camera).
+      description: The camera to create the snapshot from.
       selector:
         entity:
           domain: camera
 
     notify_device:
       name: Device to notify
-      description: Device that runs the official Home Assistant app to receive notifications.
+      description: Device that runs the Home Assistant app to receive notifications.
       selector:
         device:
           integration: mobile_app
 
-    person_detection:
-      name: Trigger on person detection?
-      description: Toggle if your would like to trigger on any motion irrespective of a person being detected
-      selector:
-        boolean:
-      default: true
-
     blocker_entity:
-      name: '(OPTIONAL) Blocking entity'
+      name: Blocking entity (Optional)
       description: If this entity state is on, it will prevent the automation from running. E.g. somebody is home (binary_sensor.people_home).
       default:
       selector:
@@ -66,7 +70,7 @@ blueprint:
 
     delay:
       name: Delay (Optional)
-      description: Wait before creating camera snapshot
+      description: Delay before creating camera snapshot
       default: 0
       selector:
         number:
@@ -101,26 +105,23 @@ blueprint:
       default: "alarm_motion"
 
     is_critical:
-      name: Should the notification be High Priority?
+      name: Should the notification be high priority?
       description: Toggle off it you don't want critical or high priority notifications.
       selector:
         boolean:
       default: true
 
-
 trigger:
   platform: state
   entity_id: !input motion_sensor
-  from: "off"
   to: "on"
-
 
 variables:
   motion_sensor: !input motion_sensor
   motion_sensor_name: "{{ states[motion_sensor].name }}"
+  detection_confidence: !input detection_confidence
   camera: !input camera
   notify_device: !input notify_device
-  is_ios: !input is_ios
   notification_title: !input notification_title
   notification_message: !input notification_message
   delay: !input delay
@@ -133,9 +134,19 @@ variables:
   group_name: !input group_name
 
 condition:
-  - condition: template
-    value_template: >
-      {{ (blocker_entity == none) or (states[blocker_entity].state == 'off') }}
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: >
+        {{ (blocker_entity == none) or (states[blocker_entity].state == 'off') }}
+    - condition: state
+      entity_id: !input motion_sensor
+      attribute: object
+      state: person
+    - condition: numeric_state
+      entity_id: !input motion_sensor
+      attribute: confidence
+      above: "{{ detection_confidence }}"
       
 action:
   - delay: "{{ delay }}"
