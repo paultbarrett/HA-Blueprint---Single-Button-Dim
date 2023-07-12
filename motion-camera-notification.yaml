@@ -44,7 +44,7 @@ blueprint:
         number:
             min: 0
             max: 100
-            unit_of_measurement: percent
+            unit_of_measurement: "%"
             mode: slider
 
     camera:
@@ -76,7 +76,7 @@ blueprint:
         number:
             min: 0
             max: 60
-            unit_of_measurement: seconds
+            unit_of_measurement: "seconds"
             mode: slider
 
     notification_title:
@@ -146,7 +146,7 @@ condition:
     - condition: numeric_state
       entity_id: !input motion_sensor
       attribute: confidence
-      above: !input detection_confidence
+      above: '{{ states(detection_confidence) | float }}'
       
 action:
   - delay: "{{ delay }}"
