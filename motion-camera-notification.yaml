@@ -1,16 +1,15 @@
 blueprint:
-  name: Send a notification with camera snapshot when a person is detected.
+  name: Notification with camera snapshot when a person is detected.
   description: >
-    This automation blueprint creates a camera snapshot if a person is detected 
-    and sends a notification to your phone with the picture. 
+    This automation blueprint creates a camera snapshot when person is detected and sends a notification to your phone with the picture. 
     Optionally you can define a binary sensor that will block the automation from running when state is ON.
     For Example do not run when somebody is home (you can use the people_home template example).
     Furthermore you have the option to make the notification critical or high priority and to collapse/overwrite or not.
     
-    
     Required entities:
       - Motion sensor (binary_sensor in motion class)
       - Camera entity
+      - Detection confidence
       - Notify device entity (mobile_app).
     
     Optional entities:
@@ -19,13 +18,10 @@ blueprint:
       - Notification title & message
       - URI for clickAction on the notification. For example a lovelace view such as /lovelace/cctv, this will open in the app.
       - Name for the channel, different channels can have different notifications settings, such as sound etc.
-      - Name for group (Android) or grouping name (iOS), to group similar notifications together
-      - Overwrite (collapse) similar notifications (iOS): Yes/No
-      - Should the notification be critical (iOS) or High Priority / TTL 0 (Android)? Yes/No (However on iOS this will defeat the collapse of grouping) 
-  
-  
+      - Name for group to group similar notifications together
+      - Should the notification be High Priority / TTL 0 (Android)? Yes/No
+    
   domain: automation
-
 
   input:
     motion_sensor:
