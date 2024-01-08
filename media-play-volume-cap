@@ -1,0 +1,38 @@
+blueprint:
+  name: Media Player - Set Maximum Volume
+  description: Set a maximum volume for your media player
+  domain: automation
+  input:
+    media_player:
+      name: Media Player
+      description: The media player for which you'd like to limit the volume
+      selector:
+        entity:
+          domain: media_player
+    max_volume:
+      name: Maximum volume
+      default: 0.5
+      selector:
+        number:
+          min: 0
+          max: 1
+          mode: slider
+          step: 0.01
+mode: parallel
+max: 5
+variables:
+  media_player: !input media_player
+  current_volume: states[media_player].attributes.volume_level
+  max_volume: !input max_volume
+trigger:
+  - platform: state
+    entity_id: !input 'media_player'
+condition:
+  condition: template
+  value_template: "{{ trigger.to_state.attributes.volume_level | float > max_volume | float }}"
+action:
+  - delay: '00:00:00.100'
+  - service: media_player.volume_set
+    data:
+      entity_id: !input 'media_player'
+      volume_level: !input 'max_volume'
