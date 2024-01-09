@@ -1,0 +1,25 @@
+mute_toggle:
+  alias: Toggle media_player mute
+  fields:
+    entity_id:
+      description: Entity id of the media_player
+      example: media_player.media_room
+  sequence:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ state_attr(entity_id, ''is_volume_muted'')
+          == false }}'
+      sequence:
+      - service: media_player.volume_mute
+        data:
+          is_volume_muted: true
+        target:
+          entity_id: '{{ entity_id }}'
+    default:
+    - service: media_player.volume_mute
+      target:
+        entity_id: '{{ entity_id }}'
+      data:
+        is_volume_muted: false
+  mode: single
